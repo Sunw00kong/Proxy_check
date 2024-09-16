@@ -4,7 +4,7 @@ with open("proxies.txt", "r") as f:
     proxies = [line.strip() for line in f if line.strip()]
 
 sites_to_check = [
-
+    "https://app.aurory.io"
 ]
 
 for counter, site in enumerate(sites_to_check):
