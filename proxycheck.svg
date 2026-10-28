@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="26" fill="#12161c"/>
+  <!-- traffic relayed through a middle node (the proxy), then a green check -->
+  <g fill="none" stroke="#4a9eea" stroke-width="7" stroke-linecap="round">
+    <path d="M26 64 H102"/>
+  </g>
+  <circle cx="26" cy="64" r="9" fill="#4a9eea"/>
+  <circle cx="64" cy="64" r="13" fill="#12161c" stroke="#4a9eea" stroke-width="7"/>
+  <circle cx="102" cy="64" r="9" fill="#4a9eea"/>
+  <!-- health check mark -->
+  <path d="M86 92 l10 10 l18 -22" fill="none" stroke="#19c37d" stroke-width="9"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
