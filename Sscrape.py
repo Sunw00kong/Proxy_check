@@ -1,3 +1,4 @@
+import time
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -24,18 +25,25 @@ def load_proxies(path="proxies.txt"):
 
 
 def check_proxy(proxy):
-    """Test ONE proxy against TARGET.
+    """Test ONE proxy against TARGET and time how long it takes.
 
-    Returns a (proxy, ok, detail) tuple instead of printing, so the thread
-    pool can hand results back cleanly. If each worker printed on its own,
-    the lines would interleave into mush.
+    Returns a (proxy, ok, detail, elapsed) tuple instead of printing, so the
+    thread pool can hand results back cleanly. If each worker printed on its
+    own, the lines would interleave into mush.
+
+    `elapsed` is the proxy's "pulse strength": a low number means a healthy,
+    fast proxy; a number near TIMEOUT means it is barely responding.
     """
     proxy_dict = {"http": proxy, "https": proxy}
+    start = time.perf_counter()  # stopwatch start
     try:
         res = requests.get(TARGET, proxies=proxy_dict, timeout=TIMEOUT)
-        return (proxy, True, res.status_code)
+        elapsed = time.perf_counter() - start
+        return (proxy, True, res.status_code, elapsed)
     except requests.RequestException as e:
-        return (proxy, False, type(e).__name__)
+        # Still record how long we waited before the failure.
+        elapsed = time.perf_counter() - start
+        return (proxy, False, type(e).__name__, elapsed)
 
 
 # ---------------------------------------------------------------------------
@@ -50,9 +58,9 @@ def main():
         futures = [pool.submit(check_proxy, p) for p in proxies]
         # ...and print each result as it finishes (not in list order).
         for fut in as_completed(futures):
-            proxy, ok, detail = fut.result()
+            proxy, ok, detail, elapsed = fut.result()
             tag = "[OK]  " if ok else "[DEAD]"
-            print(f"{tag} {proxy} -> {detail}")
+            print(f"{tag} {proxy} -> {detail}  ({elapsed:.2f}s)")
 
 
 if __name__ == "__main__":
