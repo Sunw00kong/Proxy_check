@@ -1,23 +1,19 @@
 import requests
 
+TIMEOUT = 8  # seconds to wait on one proxy before we "call it" and move on
+
+# The one authorized, in-scope target. Hardcoded on purpose (safety / scope).
+TARGET = "https://app.aurory.io"
+
+# Read the proxy list: one entry per line, blanks skipped
 with open("proxies.txt", "r") as f:
     proxies = [line.strip() for line in f if line.strip()]
 
-sites_to_check = [
-    "https://app.aurory.io"
-]
-
-for counter, site in enumerate(sites_to_check):
-    if counter >= len(proxies):
-        print("Not enough proxies for the number of sites.")
-        break
-
-    proxy = proxies[counter]
+# Go proxy-by-proxy (the patients), checking each one's "pulse" against TARGET
+for proxy in proxies:
     proxy_dict = {"http": proxy, "https": proxy}
-
     try:
-        print(f"Using the proxy: {proxy}")
-        res = requests.get(site, proxies=proxy_dict)
-        print(f"Status code for {site}: {res.status_code}")
+        res = requests.get(TARGET, proxies=proxy_dict, timeout=TIMEOUT)
+        print(f"[OK]   {proxy} -> {res.status_code}")
     except requests.RequestException as e:
-        print(f"Failed to fetch {site} with proxy {proxy}: {e}")
+        print(f"[DEAD] {proxy} -> {type(e).__name__}")  # name the failure, no wall of text
